@@ -5,60 +5,54 @@ test.beforeEach( async({page}) => {
 })
 
 test('Test Case 1: Update pet type', async ({page}) => {
-    await page.getByText('PET TYPES').click()
-    await expect(page.locator('h2')).toHaveText('Pet Types')
-    
-    // Edit pet type from 'cat' to 'rabbit' and back to 'cat'
-    await page.locator('tr').nth(1).getByRole('button', { name: 'Edit' }).click();
-    await page.waitForLoadState('networkidle'); 
-    await expect(page.locator('h2')).toHaveText('Edit Pet Type');
-    await page.locator('#name').fill('rabbit');
-    await page.getByRole('button', { name: 'Update' }).click();
-    expect(await page.locator('tr input').nth(0).inputValue()).toEqual('rabbit');
+    await page.getByTitle('pettypes').click()
+    await expect(page.getByRole('heading')).toHaveText('Pet Types')
+
+    // Edit pet type from 'cat' to 'rabbit'
+    await page.getByRole('button', { name: 'Edit' }).first().click(); // Select first pet type (cat)
+    await expect(page.getByRole('textbox')).toHaveValue('cat'); // Verify current value is 'cat'
+    await page.getByRole('textbox').fill('rabbit'); // Change to 'rabbit'
+    await page.getByRole('button', { name: 'Update' }).click(); // Save the update
+    await expect(page.locator('[id="0"]')).toHaveValue('rabbit'); // Verify that the pet type has been updated to 'rabbit'
 
     // Edit pet type back to 'cat'
-    await page.locator('tr').nth(1).getByRole('button', { name: 'Edit' }).click();
-    await page.waitForTimeout(1000)
-    await page.waitForLoadState('networkidle'); 
-    await page.locator('#name').fill('cat');
-    await page.getByRole('button', { name: 'Update' }).click();
-    expect(await page.locator('tr input').nth(0).inputValue()).toEqual('cat');
-
+    await page.getByRole('button', { name: 'Edit' }).first().click(); // Select first pet type (cat)
+    await expect(page.getByRole('textbox')).toHaveValue('rabbit'); // Verify current value is 'rabbit'
+    await page.getByRole('textbox').fill('cat'); // Change back to 'cat'
+    await page.getByRole('button', { name: 'Update' }).click(); // Save the update
+    await expect(page.locator('[id="0"]')).toHaveValue('cat'); // Verify that the pet type has been updated to 'cat'
 });
 
 test('Test Case 2: Cancel pet type update', async ({page}) => {
-    await page.getByText('PET TYPES').click()
-    const PetTypes = page.locator('h2')
-    await expect(PetTypes).toHaveText('Pet Types')
-    
+    await page.getByTitle('pettypes').click()
+    await expect(page.getByRole('heading')).toHaveText('Pet Types') 
+
     // Edit pet type from 'dog' to 'moose' and cancel
-    await page.locator('tr').nth(2).getByRole('button', { name: 'Edit' }).click();
-    await page.waitForLoadState('networkidle'); 
-    await expect(page.locator('h2')).toHaveText('Edit Pet Type');
-    await page.locator('#name').fill('moose'); 
-    expect(await page.locator('#name').inputValue()).toEqual('moose'); // Verify input value before cancelling
+    await page.getByRole('button', { name: 'Edit' }).nth(1).click(); // Select second pet type (dog)
+    await expect(page.getByRole('heading')).toHaveText('Edit Pet Type'); 
+    await expect(page.getByRole('textbox')).toHaveValue('dog'); // Verify current value is 'dog'
+    await page.getByRole('textbox').fill('moose'); // Change to 'moose'
+    await expect(page.locator('[id="name"]')).toHaveValue('moose'); // Verify that the input field has 'moose'
     await page.getByRole('button', { name: 'Cancel' }).click(); // Cancel the update
-    expect(await page.locator('tr input').nth(1).inputValue()).toEqual('dog'); // Verify that the pet type remains unchanged
+    await expect(page.locator('[id="1"]')).toHaveValue('dog'); // Verify that the pet type remains 'dog'
     
 });
 
 
 test('Test Case 3: Pet type name is required validation', async ({page}) => {
-  await page.getByText('PET TYPES').click()
-    const petTypeHeader = page.locator('h2')
-    await expect(petTypeHeader).toHaveText('Pet Types')
+
+  test.slow();
+    await page.getByText('PET TYPES').click()
+    await expect(page.getByRole('heading')).toHaveText('Pet Types')
     
     // Edit pet type to empty name to check validation
-    await page.locator('tr').nth(3).getByRole('button', { name: 'Edit' }).click();
-
-    await page.waitForTimeout(1000)  
-    await page.waitForLoadState('networkidle');
-
-    await page.locator('#name').clear()
-    await page.getByText('Name is required').isVisible();
+    await page.getByRole('button', { name: 'Edit' }).nth(2).click(); // Select third pet type (lizard)
+    await expect(page.getByRole('textbox')).toHaveValue('lizard');  // Verify current value is 'lizard'
+    await page.getByRole('textbox').clear()
+    await expect(page.locator('.help-block')).toHaveText('Name is required'); // Verify validation message
     await page.getByRole('button', { name: 'Update' }).click();
-    await expect(page.locator('h2')).toHaveText('Edit Pet Type');
+    await expect(page.getByRole('heading')).toHaveText('Edit Pet Type');
     await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.locator('h2')).toHaveText('Pet Types')
+    await expect(page.getByRole('heading')).toHaveText('Pet Types')
 
 });
