@@ -11,7 +11,7 @@ test('Test Case 1: Validate selected specialties', async ({page}) => {
     await page.getByRole('row', { name: 'Helen Leary' }).getByRole('button', { name: 'Edit Vet' }).click();
     const selectedSpecialties = page.locator('.selected-specialties');
     await expect(selectedSpecialties).toHaveText('radiology');
-    await page.locator('.dropdown-arrow').click();
+    await selectedSpecialties.click();
     expect(await page.getByRole('checkbox', {name: 'radiology'}).isChecked()).toBeTruthy();
     expect(await page.getByRole('checkbox', {name: 'surgery'}).isChecked()).toBeFalsy();
     expect(await page.getByRole('checkbox', {name: 'dentistry'}).isChecked()).toBeFalsy();
@@ -28,7 +28,7 @@ test('Test Case 2: Select all specialties', async ({page}) => {
     await page.getByRole('row', { name: 'Rafael Ortega' }).getByRole('button', { name: 'Edit Vet' }).click();
     const selectedSpecialties = page.locator('.selected-specialties');
     await expect(selectedSpecialties).toHaveText('surgery');
-    await page.locator('.dropdown-arrow').click();
+    await selectedSpecialties.click();
     const allBoxes = page.getByRole('checkbox')
     for(const box of await allBoxes.all()){
         await box.check({force: true})
@@ -44,7 +44,7 @@ test('Test Case 3: Unselect all specialties', async ({page}) => {
     await page.getByRole('row', { name: 'Linda Douglas' }).getByRole('button', { name: 'Edit Vet' }).click();
     const selectedSpecialties = page.locator('.selected-specialties');
     await expect(selectedSpecialties).toHaveText('dentistry, surgery');
-    await page.locator('.dropdown-arrow').click();
+    await selectedSpecialties.click();
     const allBoxes = page.getByRole('checkbox')
     for(const box of await allBoxes.all()){
         await box.uncheck({force: true})
